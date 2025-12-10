@@ -1,0 +1,206 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/infrastructure/db/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String       @id @default(uuid()) @db.Uuid
+  email      String       @unique
+  password   String
+  role       Role         @default(STUDENT)
+  firstName  String?
+  lastName   String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  courses        Course[]       @relation("InstructorCourses")
+  enrollments    Enrollment[]
+  quizAttempts   QuizAttempt[]
+  payments       Payment[]
+  certificates   Certificate[]
+}
+
+enum Role {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+}
+
+model Category {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String
+  description String?
+  createdAt DateTime  @default(now())
+
+  courses   Course[]
+}
+
+model Course {
+  id          String       @id @default(uuid()) @db.Uuid
+  title       String
+  description String?
+  instructor  User         @relation("InstructorCourses", fields: [instructorId], references: [id])
+  instructorId String
+  category    Category?    @relation(fields: [categoryId], references: [id])
+  categoryId  String?
+  price       Float        @default(0.0)
+  duration    Int?
+  level       Level        @default(BEGINNER)
+  status      CourseStatus @default(DRAFT)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  lessons       Lesson[]
+  enrollments   Enrollment[]
+  payments      Payment[]
+  certificates  Certificate[]
+}
+
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Lesson {
+  id         String   @id @default(uuid()) @db.Uuid
+  course     Course   @relation(fields: [courseId], references: [id])
+  courseId   String
+  title      String
+  content    String?
+  videoUrl   String?
+  orderIndex Int
+  duration   Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  quizzes    Quiz[]
+}
+
+model Enrollment {
+  id                 String  @id @default(uuid()) @db.Uuid
+  user               User    @relation(fields: [userId], references: [id])
+  userId             String
+  course             Course  @relation(fields: [courseId], references: [id])
+  courseId           String
+  enrollmentDate     DateTime @default(now())
+  progressPercentage Float    @default(0.0)
+  status             EnrollmentStatus @default(ACTIVE)
+  completionDate     DateTime?
+
+  @@unique([userId, courseId])
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  DROPPED
+}
+
+model Quiz {
+  id          String   @id @default(uuid()) @db.Uuid
+  lesson      Lesson   @relation(fields: [lessonId], references: [id])
+  lessonId    String
+  title       String
+  description String?
+  passingScore Float    @default(50.0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  questions   QuizQuestion[]
+  attempts    QuizAttempt[]
+}
+
+model QuizQuestion {
+  id          String       @id @default(uuid()) @db.Uuid
+  quiz        Quiz         @relation(fields: [quizId], references: [id])
+  quizId      String
+  question    String
+  questionType QuestionType @default(MULTIPLE_CHOICE)
+  options     Json?
+  correctAnswer String?
+  points      Int          @default(1)
+  createdAt   DateTime     @default(now())
+
+  answers     QuizAttemptAnswer[]
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_ANSWER
+}
+
+model QuizAttempt {
+  id          String   @id @default(uuid()) @db.Uuid
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id])
+  quizId      String
+  score       Float?
+  totalPoints Int?
+  attemptDate DateTime @default(now())
+  timeTaken   Int?
+
+  answers     QuizAttemptAnswer[]
+}
+
+model QuizAttemptAnswer {
+  id          String       @id @default(uuid()) @db.Uuid
+  attempt     QuizAttempt  @relation(fields: [attemptId], references: [id])
+  attemptId   String
+  question    QuizQuestion @relation(fields: [questionId], references: [id])
+  questionId  String
+  answer      String?
+  isCorrect   Boolean?
+  pointsEarned Int? @default(0)
+}
+
+model Payment {
+  id             String   @id @default(uuid()) @db.Uuid
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String
+  course         Course   @relation(fields: [courseId], references: [id])
+  courseId       String
+  amount         Float
+  paymentMethod  String?
+  transactionId  String?
+  status         PaymentStatus @default(PENDING)
+  paymentDate    DateTime @default(now())
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model Certificate {
+  id            String   @id @default(uuid()) @db.Uuid
+  user          User     @relation(fields: [userId], references: [id])
+  userId        String
+  course        Course   @relation(fields: [courseId], references: [id])
+  courseId      String
+  issuedDate    DateTime @default(now())
+  certificateUrl String?
+
+  @@unique([userId, courseId])
+}
