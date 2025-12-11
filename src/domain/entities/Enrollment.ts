@@ -1,14 +1,14 @@
 import { EnrollmentStatus } from "@types";
 
 export class Enrollment {
-  private _userId: number;
-  private _courseId: number;
+  private _userId: string;
+  private _courseId: string;
   private _enrollmentDate: Date;
   private _progressPercentage: number;
   private _status: EnrollmentStatus;
   private _completionDate?: Date;
 
-  constructor(userId: number, courseId: number) {
+  constructor(userId: string, courseId: string) {
     this._userId = userId;
     this._courseId = courseId;
     this._enrollmentDate = new Date();
