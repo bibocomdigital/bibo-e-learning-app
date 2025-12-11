@@ -1,3 +1,3 @@
-export interface AppCompositionRoot {
+export interface AppCompositionRooter {
   // userController: UserController;
 }

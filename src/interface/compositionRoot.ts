@@ -1,6 +1,6 @@
-import { AppCompositionRoot } from "./contrat";
+import { AppCompositionRooter } from "./contrat";
 
-export const compositionRoot = (): AppCompositionRoot => {
+export const compositionRoot = (): AppCompositionRooter => {
 
   return {
     // userController: new UserController(),
