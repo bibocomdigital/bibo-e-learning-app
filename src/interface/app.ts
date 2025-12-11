@@ -1,8 +1,9 @@
-import { AppCompositionRoot } from "./compositionRoot";
+import { Router } from "express";
+import { AppCompositionRoot } from "./contrat";
 import { expressApp } from "./express";
  
 
-export function app(routes: AppCompositionRoot ) {
+export const app = (routes: AppCompositionRoot ): Router => {
   const router = expressApp.Router();
   
   return router;

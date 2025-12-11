@@ -1,8 +1,4 @@
-import { UserController } from "./http";
-
-export interface AppCompositionRoot {
-  // userController: UserController;
-}
+import { AppCompositionRoot } from "./contrat";
 
 export const compositionRoot = (): AppCompositionRoot => {
 

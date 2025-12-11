@@ -1,0 +1,11 @@
+{
+  "execMap": {
+    "ts": "node -r tsconfig-paths/register ./node_modules/.bin/ts-node"
+  },
+  "watch": ["src/**/*"],
+  "ext": "ts,json",
+  "ignore": ["src/**/*.spec.ts", "src/**/*.test.ts", "node_modules/**/*"],
+  "env": {
+    "NODE_ENV": "development"
+  }
+}
