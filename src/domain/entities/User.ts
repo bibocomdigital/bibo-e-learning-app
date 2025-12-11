@@ -2,7 +2,7 @@ import { UserRole } from "@types";
 import { Email } from "domain/value-objects";
 
 export class User {
-  private _id: number;
+  private _id: string;
   private _email: Email;
   private _password: string;
   private _role: UserRole;
@@ -12,7 +12,7 @@ export class User {
   private _updatedAt: Date;
 
   constructor(
-    id: number,
+    id: string,
     email: Email,
     password: string,
     role: UserRole.student,
